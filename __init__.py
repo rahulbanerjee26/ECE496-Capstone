@@ -4,7 +4,7 @@ from pandas import read_csv
 from matplotlib import pyplot
 import pandas
 
-def collect_data(macAddress,run_time=2,channels=[3],samplingRate=100,nSamples=1,saveData=True,outputFileName='ppgData'):
+def collect_data(macAddress,run_time=10,channels=[3],samplingRate=100,nSamples=1,saveData=True,outputFileName='ppgData'):
     # Connect to BITalino
     device = BITalino(macAddress)
     ppg_data = []
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     # Windows : "XX:XX:XX:XX:XX:XX"
     # Mac OS :  "/dev/tty.BITalino-XX-XX-DevB" or "/dev/tty.BITalino-DevB" 
     macAddress = "/dev/tty.BITalino-DevB"
-    name = 'Rahul'
+    name = 'test'
     outputFileName = f'{name}_PPG_Data'
     ppg_vs_time = collect_data(macAddress,outputFileName=outputFileName)
     plot_time_series(path=f'PPG_Data/{outputFileName}.csv')
