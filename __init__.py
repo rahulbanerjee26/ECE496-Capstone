@@ -2,7 +2,8 @@ from bitalino import BITalino
 import time
 from pandas import read_csv
 from matplotlib import pyplot
-import pandas
+import pandas as pd
+
 
 def collect_data(macAddress,run_time=10,channels=[3],samplingRate=100,nSamples=1,saveData=True,outputFileName='ppgData'):
     # Connect to BITalino
@@ -41,7 +42,7 @@ def collect_data(macAddress,run_time=10,channels=[3],samplingRate=100,nSamples=1
             print('Collected Data') 
     return ppg_vs_time
 
-def plot_time_series(ppg_data=None,path=''):
+def plot_time_series_ppg(ppg_data=None,path='',outputFileName = 'ppgData'):
     if not (ppg_data or path):
         raise Exception('Please provide data or path to csv file')
     if path: data = read_csv(path,header=0, index_col=0)
@@ -55,12 +56,27 @@ def plot_time_series(ppg_data=None,path=''):
     pyplot.show()
     
 
+def plot_time_series_cpg(path='',outputFileName='cpgData'):
+    if path: data = read_csv(path,header=None)
+    else: raise Exception('Please provide path to cpg data')
+    data[0] = pd.to_datetime(data[0], errors='coerce')
+    start = data[0][0]
+    data[0] = data.apply(lambda row: (row[0] - start).total_seconds(), axis = 1)
+    data[1] = (data[1]-data[1].min())/(data[1].max()-data[1].min())
+    print(data.head())
+    data.plot(x=0,y=1,legend=None)
+    pyplot.title(outputFileName)
+    pyplot.xlabel('Time')
+    pyplot.ylabel('CPG Value')
+    pyplot.savefig(f'CPG_Data/{outputFileName}.png')
+    pyplot.show()
+
 if __name__ == '__main__':
     # Windows : "XX:XX:XX:XX:XX:XX"
     # Mac OS :  "/dev/tty.BITalino-XX-XX-DevB" or "/dev/tty.BITalino-DevB" 
     macAddress = "/dev/tty.BITalino-DevB"
-    name = 'test'
-    outputFileName = f'{name}_PPG_Data'
-    ppg_vs_time = collect_data(macAddress,outputFileName=outputFileName)
-    plot_time_series(path=f'PPG_Data/{outputFileName}.csv')
+    name = 'Rahul'
+    outputFileName = f'{name}_CPG_Data'
+    #ppg_vs_time = collect_data(macAddress,outputFileName=outputFileName)
+    plot_time_series_cpg(path=f'CPG_Data/{outputFileName}.csv',outputFileName = outputFileName)
 
