@@ -8,7 +8,7 @@ def normalize(x):
 
 
 
-noisy_signal = genfromtxt('CPG_Data/saminul_extended2_yolo.csv', delimiter=',',encoding="utf8")
+noisy_signal = genfromtxt('CPG_Data/saminul_extended2_secondstimestamp.csv', delimiter=',',encoding="utf8")
 signal_time_stamp = noisy_signal[:,0]
 noisy_signal = noisy_signal[:,1]
 
@@ -23,7 +23,12 @@ normalized_signal = np.apply_along_axis(normalize, 0, filtered_signal)
 
 fig = plt.figure()
 ax = plt.axes()
-ax.plot(signal_time_stamp[2100:2800], normalized_signal[2100:2800],label = 'clean');
+ax.plot(signal_time_stamp[2000:3000], normalized_signal[2000:3000],label = 'clean');
+
+fig1 = plt.figure()
+ax2 = plt.axes()
+ax2.plot(signal_time_stamp[2000:3000], noisy_signal[2000:3000],label = 'noisy')
+
 plt.show()
 
 

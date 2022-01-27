@@ -64,7 +64,7 @@ def plot_time_series_cpg(path='',outputFileName='cpgData'):
     data[0] = data.apply(lambda row: (row[0] - start).total_seconds(), axis = 1)
     print(data.head())
     data.plot(x=0,y=1,legend=None)
-    data.to_csv('CPG_Data/saminul_extended2_yolo.csv',index=False)
+    data.to_csv('CPG_Data/saminul_extended2_secondstimestamp.csv',index=False)
     pyplot.title(outputFileName)
     pyplot.xlabel('Time')
     pyplot.ylabel('CPG Value')
@@ -78,5 +78,5 @@ if __name__ == '__main__':
     name = 'Rahul'
     outputFileName = f'{name}_CPG_Data'
     #ppg_vs_time = collect_data(macAddress,outputFileName=outputFileName)
-    plot_time_series_cpg(path=f'CPG_Data/saminul_extended2.csv',outputFileName = outputFileName)
+    plot_time_series_cpg(path=f'CPG_Data/saminul_extended3.csv',outputFileName = outputFileName)
 
