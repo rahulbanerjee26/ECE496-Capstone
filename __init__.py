@@ -5,7 +5,7 @@ from matplotlib import pyplot
 import pandas as pd
 
 
-def collect_data(macAddress,run_time=15,channels=[3],samplingRate=100,nSamples=1,saveData=True,outputFileName='ppgData'):
+def collect_data(macAddress,run_time=33,channels=[3],samplingRate=100,nSamples=1,saveData=True,outputFileName='ppgData'):
     # Connect to BITalino
     device = BITalino(macAddress)
     ppg_data = []
@@ -41,7 +41,7 @@ def collect_data(macAddress,run_time=15,channels=[3],samplingRate=100,nSamples=1
                 for ppg_time,ppg_value in ppg_vs_time:
                  count+=1
                  file.write(f'{ppg_time},{ppg_value}\n')
-                 if count == 1000:
+                 if count == 3000:
                   break
             print('Collected Data') 
     return ppg_vs_time
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     # Windows : "XX:XX:XX:XX:XX:XX"
     # Mac OS :  "/dev/tty.BITalino-XX-XX-DevB" or "/dev/tty.BITalino-DevB" 
     macAddress = "/dev/tty.BITalino-DevB"
-    name = 'Sam_train'
+    name = '3_SAM_Test'
     outputFileName = f'{name}_PPG_Data'
     ppg_vs_time = collect_data(macAddress,outputFileName=outputFileName)
     plot_time_series_ppg(path=f'PPG_Data/{outputFileName}.csv',outputFileName = outputFileName)
