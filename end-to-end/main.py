@@ -8,18 +8,21 @@ from model import Classifier
 macAddress = "/dev/tty.BITalino-DevB"
 training_signal = []
 
-input("Finger 1")
-training_signal.extend(device.collect_data(macAddress,run_time=20))
-input("Finger 2")
-training_signal.extend(device.collect_data(macAddress,run_time=20))
-input("Finger 3")
-training_signal.extend(device.collect_data(macAddress,run_time=20))
-input("Finger 4")
-training_signal.extend(device.collect_data(macAddress,run_time=20))
-input("Finger 5")
-training_signal.extend(device.collect_data(macAddress,run_time=10))
+multipleFinger = False
 
-# training_signal = device.collect_data(macAddress,run_time=90)
+if multipleFinger:
+    input("Finger 1")
+    training_signal.extend(device.collect_data(macAddress,run_time=20))
+    input("Finger 2")
+    training_signal.extend(device.collect_data(macAddress,run_time=20))
+    input("Finger 3")
+    training_signal.extend(device.collect_data(macAddress,run_time=20))
+    input("Finger 4")
+    training_signal.extend(device.collect_data(macAddress,run_time=20))
+    input("Finger 5")
+    training_signal.extend(device.collect_data(macAddress,run_time=10))
+else:
+    training_signal = device.collect_data(macAddress,run_time=90)
 
 training_signal = np.array(training_signal)
 
