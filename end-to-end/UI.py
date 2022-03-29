@@ -1,4 +1,9 @@
+import imp
 import streamlit as st 
+import os
+from model import Authenticator,Classifier
+import torch
+from main import collect_data,train_model,predict
 
 st.set_page_config(
     page_title='Real Time PPG', 
@@ -44,7 +49,41 @@ if page == 'Home':
 
 if page == 'Train':
     st.title("Train Model on Your Data")
+    name = st.text_input(label='Enter your name',value='Your Model')
+    is_collect = st.button(label='Collect Data')
+
+    if is_collect:
+        name = name.replace(" ","_")
+        authenticator_data,cleaned_ppg_data_training = collect_data(is_streamlit=True,run_time=90)
+        trained_model = train_model(authenticator_data,cleaned_ppg_data_training,is_streamlit=True,model_name=name)
+
+        
+
 
 
 if page == 'Test':
     st.title("Test Trained Models")
+    filelist=[]
+    for root, dirs, files in os.walk("./Authenticator_Models/"):
+      for file in files:
+             filename=os.path.join(root, file)
+             filelist.append(filename)
+    
+    model_list = {}
+    for file in filelist:
+        model_list[file.split('/')[2]] = file
+
+    chose_model = st.selectbox(label='Chose Model',options=[key for key in model_list.keys()])
+    authenticator_model = torch.load(model_list[chose_model])
+    st.text(f'Loaded Model {chose_model}')
+
+    is_collect = st.button(label='Collect Data')
+    if is_collect:
+        authenticator_data,cleaned_ppg_data = collect_data(is_streamlit=True,run_time=20)
+        predict(data=cleaned_ppg_data,model=authenticator_model,is_streamlit=True)
+        
+
+
+
+
+

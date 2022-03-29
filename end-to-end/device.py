@@ -5,14 +5,21 @@ from matplotlib import pyplot
 import pandas as pd
 from scipy import signal
 import numpy as np
+import streamlit as st
+from collections import deque
 
-
-def collect_data(macAddress,run_time=90,channels=[3],samplingRate=100,nSamples=1,saveData=False,outputFileName='ppgData'):
+def collect_data(macAddress,run_time=90,channels=[3],samplingRate=100,nSamples=1,saveData=False,outputFileName='ppgData',is_streamlit = False):
     # Connect to BITalino
     print("------  Collecting Data")
     device = BITalino(macAddress)
     ppg_data = []
     times = []
+
+    if is_streamlit:
+        progress_bar = st.progress(0)
+        time_reaiming = st.text(f"Time Reamining: ~{run_time}s")
+
+
     # Start Acquisition
     device.start(samplingRate, channels)
     start = time.time()
@@ -26,14 +33,23 @@ def collect_data(macAddress,run_time=90,channels=[3],samplingRate=100,nSamples=1
 
         ]
         '''
-        if sec_count == 500:
-            print("Time Reamining:  ~", int(run_time - (end - start)), "s")
-            sec_count = 0
             
         times.append(end-start)
-        ppg_data.extend(device.read(nSamples))
+        samples = device.read(nSamples)
+        ppg_data.extend(samples)
         end = time.time()
         sec_count+=1
+
+            
+
+        if sec_count == 500:
+            print("Time Reamining:  ~", int(run_time - (end - start)), "s")
+            if is_streamlit:
+                progress_bar.progress(min(100,int(100*(end - start)/run_time)))
+                time_reaiming.text(f"Time Reamaining:  ~ {int(run_time - (end - start))}s")
+            sec_count = 0
+    
+            
 
     # Stop acquisition
     device.stop()
@@ -54,7 +70,11 @@ def collect_data(macAddress,run_time=90,channels=[3],samplingRate=100,nSamples=1
                  if count == run_time*100:
                   break
             print('------  Collected Data') 
-            
+
+    if is_streamlit:
+        time_reaiming.empty()
+        progress_bar.empty()     
+    
     return channel4_data[0:run_time*100]
 
 def plot_time_series_ppg(ppg_data=None,path='',outputFileName = 'ppgData'):
