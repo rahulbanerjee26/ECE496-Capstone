@@ -7,72 +7,28 @@ from model import Classifier
 
 macAddress = "/dev/tty.BITalino-DevB"
 training_signal = []
-model1 = False
-model2 = False
-model3 = True
 
 
-multipleFinger = False
-
-if multipleFinger:
-    input("Finger 1")
-    training_signal.extend(device.collect_data(macAddress,run_time=20))
-    input("Finger 2")
-    training_signal.extend(device.collect_data(macAddress,run_time=20))
-    input("Finger 3")
-    training_signal.extend(device.collect_data(macAddress,run_time=20))
-    input("Finger 4")
-    training_signal.extend(device.collect_data(macAddress,run_time=20))
-    input("Finger 5")
-    training_signal.extend(device.collect_data(macAddress,run_time=10))
-else:
+def collect_data():
     training_signal = device.collect_data(macAddress,run_time=90)
 
-training_signal = np.array(training_signal)
+    training_signal = np.array(training_signal)
 
-cleaned_ppg_data_training = device.clean_data(training_signal, doPlot=False)
+    cleaned_ppg_data_training = device.clean_data(training_signal, doPlot=False)
 
-# Authentication
-data = np.load("preprocessed_data.npy", allow_pickle=True)
-_, _, authenticator_data = ppg_model.create_dataset(data)
+    # Authentication
+    data = np.load("preprocessed_data.npy", allow_pickle=True)
+    _, _, authenticator_data = ppg_model.create_dataset(data)
 
-participant = 24
+    return authenticator_data,cleaned_ppg_data_training
 
-# xxxxxxxxxxxxxxx model 1 xxxxxxxxxxxxxxxxxxxx
-if model1:
-    print("------  STARTED TRAINING 1")
-    classifier_model = pickle.load(open('./Works_Classifier_Model.sav', 'rb'))
-    train_accs, val_accs, test_accs, confusion_matrices , trained_model_1= ppg_model.train_model_for_participant(ppg_model.Authenticator, classifier_model, authenticator_data, cleaned_ppg_data_training ,participant)
 
-    mean = lambda x: sum(x)/len(x)
+def train_model(authenticator_data,cleaned_ppg_data_training):
+    participant = 24
 
-    print("Average final train accuracy: {}".format(mean(train_accs)))
-    print("Average final validation accuracy: {}".format(mean(val_accs)))
-    print("Average test accuracy: {}".format(mean(test_accs)))
-    print(sum(confusion_matrices))
-
-    print("------  DONE TRAINING 1")
-
-# xxxxxxxxxxxxxxx model 2 xxxxxxxxxxxxxxxxxxxx
-if model2:
-    print("------  STARTED TRAINING 2")
-    classifier_model = pickle.load(open('./1_Classifier_Model.sav', 'rb'))
-    train_accs, val_accs, test_accs, confusion_matrices , trained_model_2= ppg_model.train_model_for_participant(ppg_model.Authenticator, classifier_model, authenticator_data, cleaned_ppg_data_training ,participant)
-
-    mean = lambda x: sum(x)/len(x)
-
-    print("Average final train accuracy: {}".format(mean(train_accs)))
-    print("Average final validation accuracy: {}".format(mean(val_accs)))
-    print("Average test accuracy: {}".format(mean(test_accs)))
-    print(sum(confusion_matrices))
-
-    print("------  DONE TRAINING 2")
-
-# xxxxxxxxxxxxxxx model 3 xxxxxxxxxxxxxxxxxxxx
-if model3:
-    print("------  STARTED TRAINING 3")
+    print("------  STARTED TRAINING")
     classifier_model = pickle.load(open('./2_Classifier_Model.sav', 'rb'))
-    train_accs, val_accs, test_accs, confusion_matrices , trained_model_3= ppg_model.train_model_for_participant(ppg_model.Authenticator, classifier_model, authenticator_data, cleaned_ppg_data_training ,participant)
+    train_accs, val_accs, test_accs, confusion_matrices , trained_model= ppg_model.train_model_for_participant(ppg_model.Authenticator, classifier_model, authenticator_data, cleaned_ppg_data_training ,participant)
 
     mean = lambda x: sum(x)/len(x)
 
@@ -80,63 +36,36 @@ if model3:
     print("Average final validation accuracy: {}".format(mean(val_accs)))
     print("Average test accuracy: {}".format(mean(test_accs)))
     print(sum(confusion_matrices))
+    print("------  DONE TRAINING")
 
-    print("------  DONE TRAINING 3")
+    return trained_model
 
-while True:
-    key = input("New Preiction? Y for Yes, Q to quit:  ")
-    if key == 'q' or key == 'Q':
-        print("Trademark of Dimitrios Hatzinokos")
-        break
-    elif key == 'y':
-        try:
+
+def predict(key,model):
+    try:
+
+        if key == 'y':
             test_signal = device.collect_data(macAddress,run_time=10)
             test_signal = np.array(test_signal)
             cleaned_test_signal= device.clean_data(test_signal, doPlot=False)
-            if model1:
-                model_pred1 = ppg_model.prediction(data=cleaned_test_signal, model=trained_model_1)
-                print("MODEL 1: ",model_pred1.argmax(dim=1))
-            if model2:
-                model_pred2 = ppg_model.prediction(data=cleaned_test_signal, model=trained_model_2)
-                print("MODEL 2: ",model_pred2.argmax(dim=1))
-            if model3:
-                model_pred3 = ppg_model.prediction(data=cleaned_test_signal, model=trained_model_3)
-                print("MODEL 3: ",model_pred3.argmax(dim=1))         
-        except:
-            print("error occured")
+            model_pred3 = ppg_model.prediction(data=cleaned_test_signal, model=model)
+            print("MODEL 3: ",model_pred3.argmax(dim=1))
 
-
-    elif key == 's':
-        try:
+        elif key == 's':
             test_signal = device.collect_data(macAddress,run_time=20)
             test_signal = np.array(test_signal)
             cleaned_test_signal= device.clean_data(test_signal, doPlot=False)
-            if model1:
-                model_pred1 = ppg_model.prediction(data=cleaned_test_signal, model=trained_model_1)
-                print("MODEL 1: ",model_pred1.argmax(dim=1))
-            if model2:
-                model_pred2 = ppg_model.prediction(data=cleaned_test_signal, model=trained_model_2)
-                print("MODEL 2: ",model_pred2.argmax(dim=1))
-            if model3:
-                model_pred3 = ppg_model.prediction(data=cleaned_test_signal, model=trained_model_3)
-                print("MODEL 3: ",model_pred3.argmax(dim=1))    
-        except:
-            print("error occured")
+            model_pred3 = ppg_model.prediction(data=cleaned_test_signal, model=model)
+            print("MODEL 3: ",model_pred3.argmax(dim=1))  
 
-    elif key == 'r':
-        try:
+        elif key == 'r':
             test_signal = device.collect_data(macAddress,run_time=10)
             test_signal = np.array(test_signal)
             cleaned_test_signal= device.clean_data(test_signal, doPlot=False, filter=False)
-            if model1:
-                model_pred1 = ppg_model.prediction(data=cleaned_test_signal, model=trained_model_1)
-                print("MODEL 1: ",model_pred1.argmax(dim=1))
-            if model2:
-                model_pred2 = ppg_model.prediction(data=cleaned_test_signal, model=trained_model_2)
-                print("MODEL 2: ",model_pred2.argmax(dim=1))
-            if model3:
-                model_pred3 = ppg_model.prediction(data=cleaned_test_signal, model=trained_model_3)
-                print("MODEL 3: ",model_pred3.argmax(dim=1))    
-        except:
-            print("error occured")
+            model_pred3 = ppg_model.prediction(data=cleaned_test_signal, model=model)
+            print("MODEL 3: ",model_pred3.argmax(dim=1))   
+        
+    except:
+        pass
+
 
